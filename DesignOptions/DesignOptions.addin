@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Text>DesignOptions - Command 1</Text>
+    <Description>Some description</Description>
+    <Assembly>DesignOptions\DesignOptions.dll</Assembly>
+    <FullClassName>DesignOptions.Command1</FullClassName>
+    <ClientId>cbf1bf03-a4e4-4a01-a8d7-4bb55a96983a</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+  <AddIn Type="Command">
+    <Text>DesignOptions - Command 2</Text>
+    <Description>Some description</Description>
+    <Assembly>DesignOptions\DesignOptions.dll</Assembly>
+    <FullClassName>DesignOptions.Command2</FullClassName>
+    <ClientId>17d02ab0-e78d-46ea-8037-154ed94ae5be</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+  <AddIn Type="Application">
+    <Name>DesignOptions</Name>
+    <Assembly>DesignOptions\DesignOptions.dll</Assembly>
+    <FullClassName>DesignOptions.App</FullClassName>
+    <ClientId>6bfe40f4-2ca6-442a-ab81-efd94eac79ae</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+</RevitAddIns>
