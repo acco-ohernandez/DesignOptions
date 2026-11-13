@@ -54,6 +54,8 @@
 </PropertyGroup>
 <PropertyGroup Condition="$(Configuration.Contains('R26'))">
 	<RevitVersion>2026</RevitVersion>
+	<!-- 2026.5.x of the API package targets net10.0; pin to the net8.0 release -->
+	<RevitApiPackageVersion>2026.0.0</RevitApiPackageVersion>
 	<TargetFramework>net8.0-windows</TargetFramework>
     	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	<EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -72,6 +74,7 @@
 </PropertyGroup>
 
 <PropertyGroup>
+	<RevitApiPackageVersion Condition="'$(RevitApiPackageVersion)' == ''">$(RevitVersion).*</RevitApiPackageVersion>
 	<Version>$(RevitVersion)</Version>
     	<StartAction>Program</StartAction>
     	<StartProgram>$(ProgramW6432)\Autodesk\Revit $(RevitVersion)\Revit.exe</StartProgram>
@@ -91,7 +94,7 @@
 	
 <ItemGroup>
   	<PackageReference Include="System.Drawing.Common" Version="8.0.3" IncludeAssets="build; compile" PrivateAssets="All" />
-  	<PackageReference Include="Revit_All_Main_Versions_API_x64" Version="$(RevitVersion).*" IncludeAssets="build; compile" PrivateAssets="All" />
+  	<PackageReference Include="Revit_All_Main_Versions_API_x64" Version="$(RevitApiPackageVersion)" IncludeAssets="build; compile" PrivateAssets="All" />
 </ItemGroup>
 	
 <PropertyGroup>
