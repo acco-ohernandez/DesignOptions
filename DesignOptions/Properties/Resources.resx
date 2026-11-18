@@ -142,4 +142,16 @@
   <data name="Yellow_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Yellow_32.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="LockedDesignOptions_16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LockedDesignOptions_16x16.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="LockedDesignOptions_32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LockedDesignOptions_32x32.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="LockedDesignOptions_Dark_16x16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LockedDesignOptions_Dark_16x16.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="LockedDesignOptions_Dark_32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LockedDesignOptions_Dark_32x32.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

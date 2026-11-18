@@ -276,14 +276,16 @@ namespace DesignOptions
         internal static PushButtonData GetButtonData()
         {
             string buttonInternalName = "btnLockedDesignOptions";
-            string buttonTitle = "Locked Design Options";
+            string buttonTitle = "Pin & Lock";
 
             Common.ButtonDataClass myButtonData = new Common.ButtonDataClass(
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
+                Properties.Resources.LockedDesignOptions_32x32,
+                Properties.Resources.LockedDesignOptions_16x16,
+                Properties.Resources.LockedDesignOptions_Dark_32x32,
+                Properties.Resources.LockedDesignOptions_Dark_16x16,
                 $"Pins all Revit links, CAD links, grids, scope boxes and levels, then adds the links, grids and scope boxes to the {OptionSetName} > {OptionName} design option.");
 
             return myButtonData.Data;

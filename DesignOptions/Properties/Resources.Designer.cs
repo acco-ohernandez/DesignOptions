@@ -163,5 +163,53 @@ namespace DesignOptions.Properties
                 return ((byte[])(obj));
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] LockedDesignOptions_16x16
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("LockedDesignOptions_16x16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] LockedDesignOptions_32x32
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("LockedDesignOptions_32x32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] LockedDesignOptions_Dark_16x16
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("LockedDesignOptions_Dark_16x16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] LockedDesignOptions_Dark_32x32
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("LockedDesignOptions_Dark_32x32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
