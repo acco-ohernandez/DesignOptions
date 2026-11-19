@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DesignOptions.Forms;
 
 namespace DesignOptions
 {
@@ -57,76 +58,85 @@ namespace DesignOptions
                 // 2. Gather the candidate elements that are still in the main model.
                 List<Element> candidates = CollectCandidates(doc);
                 List<Element> inMainModel = candidates.Where(e => e.DesignOption == null).ToList();
-                int alreadyInLocked = candidates.Count(e => e.DesignOption != null && e.DesignOption.Id == lockedOption.Id);
-                int inOtherOption = candidates.Count - inMainModel.Count - alreadyInLocked;
+                List<Element> alreadyInLocked = candidates
+                    .Where(e => e.DesignOption != null && e.DesignOption.Id == lockedOption.Id)
+                    .ToList();
+                int inOtherOption = candidates.Count - inMainModel.Count - alreadyInLocked.Count;
 
                 Debug.WriteLine($"{LogTag} candidates={candidates.Count} mainModel={inMainModel.Count} " +
-                                $"alreadyLocked={alreadyInLocked} otherOption={inOtherOption}");
+                                $"alreadyLocked={alreadyInLocked.Count} otherOption={inOtherOption}");
 
-                if (inMainModel.Count == 0)
-                {
-                    int levelsPinned = PinAllLevels(doc);
-                    TaskDialog.Show("Locked Design Options",
-                        "No Revit links, CAD links, grids or scope boxes were found in the main model.\n\n" +
-                        $"Already in {OptionSetName} > {OptionName}: {alreadyInLocked}\n" +
-                        $"In another design option: {inOtherOption}\n" +
-                        $"Levels newly pinned: {levelsPinned}");
-                    return Result.Succeeded;
-                }
-
-                // 3. Pin everything, plus all levels. Levels are pinned only: Revit does
-                //    not allow levels inside a design option, so they stay out of the selection.
+                // 3. Pin everything: the new main-model elements, anything already in LOCKED
+                //    that someone has since unpinned, and all levels. Levels are pinned only:
+                //    Revit does not allow levels inside a design option, so they stay out of
+                //    the selection.
                 List<Level> levels = new FilteredElementCollector(doc)
                     .OfClass(typeof(Level))
                     .Cast<Level>()
                     .ToList();
                 Debug.WriteLine($"{LogTag} levels={levels.Count}");
 
-                int pinnedNow = 0;
-                using (Transaction t = new Transaction(doc, "Pin elements for LOCKED design option"))
+                List<Element> allHandled = inMainModel.Concat(alreadyInLocked).Concat(levels).ToList();
+                HashSet<ElementId> pinnedNow = PinElements(doc, allHandled);
+
+                List<PinLockReportRow> rows = BuildReportRows(
+                    allHandled,
+                    pinnedNow,
+                    new HashSet<ElementId>(inMainModel.Select(e => e.Id)),
+                    new HashSet<ElementId>(alreadyInLocked.Select(e => e.Id)));
+
+                List<string> notes = new List<string>();
+                if (levels.Count > 0)
+                    notes.Add("Levels are pinned only. Revit does not allow levels in a design option.");
+                if (inOtherOption > 0)
+                    notes.Add($"Skipped {inOtherOption} element(s) that sit in a different design option.");
+
+                bool canProceed = inMainModel.Count > 0;
+
+                string headline = canProceed
+                    ? $"{pinnedNow.Count} element(s) pinned, {inMainModel.Count} selected for {OptionSetName} > {OptionName}"
+                    : $"Nothing new to add to {OptionSetName} > {OptionName}";
+                string subhead = canProceed
+                    ? "Uncheck \"Pinned\" on a row to unpin those elements when you click OK."
+                    : $"{pinnedNow.Count} element(s) re-pinned. Uncheck \"Pinned\" on a row to unpin those elements when you click Apply.";
+                string instruction = canProceed
+                    ? $"Click OK to open Revit's \"Add to Design Option Set\" dialog, then choose set \"{OptionSetName}\" " +
+                      $"and option \"{OptionName}\" to finish. (The Revit API cannot assign elements to a design option directly.)"
+                    : null;
+
+                if (canProceed)
                 {
-                    t.Start();
-                    foreach (Element e in inMainModel.Concat(levels))
-                    {
-                        if (e.Pinned) continue;
-                        try
-                        {
-                            e.Pinned = true;
-                            pinnedNow++;
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"{LogTag} Could not pin {e.Id} ({e.Category?.Name}): {ex.Message}");
-                        }
-                    }
-                    t.Commit();
+                    // Select now so Revit's Add to Set command (posted after OK) acts on these elements.
+                    uidoc.Selection.SetElementIds(inMainModel.Select(e => e.Id).ToList());
                 }
-                Debug.WriteLine($"{LogTag} pinned {pinnedNow} element(s)");
 
-                // 4. Select the elements and post Revit's "Add to Set" command, which
-                //    opens the Add to Design Option Set dialog for this selection.
-                uidoc.Selection.SetElementIds(inMainModel.Select(e => e.Id).ToList());
+                PinLockReportWindow window = new PinLockReportWindow(
+                    headline, subhead, rows, notes, instruction, OptionName, canProceed);
+                new System.Windows.Interop.WindowInteropHelper(window) { Owner = uiapp.MainWindowHandle };
+                bool proceed = window.ShowDialog() == true;
 
-                string summary = BuildSummary(inMainModel);
-                TaskDialog info = new TaskDialog("Locked Design Options")
+                if (!proceed)
                 {
-                    MainInstruction = $"{inMainModel.Count} element(s) pinned and selected, {levels.Count} level(s) pinned.",
-                    MainContent =
-                        summary +
-                        $"Levels (pinned only, cannot join a design option): {levels.Count}\n" +
-                        $"\nNewly pinned: {pinnedNow}\n\n" +
-                        "When you click OK, Revit's \"Add to Design Option Set\" dialog will open. " +
-                        $"Choose set \"{OptionSetName}\" and option \"{OptionName}\" to finish.\n\n" +
-                        "(The Revit API cannot assign elements to a design option directly.)",
-                    CommonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel,
-                    DefaultButton = TaskDialogResult.Ok
-                };
-
-                if (info.Show() != TaskDialogResult.Ok)
-                {
-                    Debug.WriteLine($"{LogTag} user cancelled before AddToSet");
+                    Debug.WriteLine($"{LogTag} user cancelled; pins left as applied, no AddToSet");
                     return Result.Succeeded;
                 }
+
+                // 4. Honour the "Pinned" checkboxes: any row the user unchecked gets unpinned.
+                List<Element> toUnpin = rows
+                    .Where(r => !r.IsTotal && !r.Pin)
+                    .SelectMany(r => r.Elements)
+                    .ToList();
+                if (toUnpin.Count > 0)
+                {
+                    int unpinned = UnpinElements(doc, toUnpin);
+                    Debug.WriteLine($"{LogTag} user unchecked {toUnpin.Count} element(s); unpinned {unpinned}");
+                }
+
+                if (!canProceed)
+                    return Result.Succeeded;
+
+                // 5. Post Revit's "Add to Set" command, which opens the Add to Design
+                //    Option Set dialog for the current selection.
 
                 RevitCommandId addToSet = RevitCommandId.LookupPostableCommandId(PostableCommand.AddToSet);
                 if (addToSet != null && uiapp.CanPostCommand(addToSet))
@@ -234,43 +244,141 @@ namespace DesignOptions
         }
 
         /// <summary>
-        /// Pins every level in the document. Returns how many were newly pinned.
+        /// Pins every element in the sequence that is not already pinned.
+        /// Returns the ids of the elements newly pinned this run.
         /// </summary>
-        private static int PinAllLevels(Document doc)
+        private static HashSet<ElementId> PinElements(Document doc, IEnumerable<Element> elements)
         {
-            List<Level> levels = new FilteredElementCollector(doc)
-                .OfClass(typeof(Level))
-                .Cast<Level>()
-                .Where(l => !l.Pinned)
-                .ToList();
-            if (levels.Count == 0) return 0;
+            HashSet<ElementId> pinned = new HashSet<ElementId>();
+            List<Element> toPin = elements.Where(e => !e.Pinned).ToList();
+            if (toPin.Count == 0)
+            {
+                Debug.WriteLine($"{LogTag} nothing to pin");
+                return pinned;
+            }
 
-            int pinned = 0;
-            using (Transaction t = new Transaction(doc, "Pin levels"))
+            using (Transaction t = new Transaction(doc, "Pin & Lock: pin elements"))
             {
                 t.Start();
-                foreach (Level l in levels)
+                foreach (Element e in toPin)
                 {
-                    try { l.Pinned = true; pinned++; }
-                    catch (Exception ex) { Debug.WriteLine($"{LogTag} Could not pin level {l.Id}: {ex.Message}"); }
+                    try
+                    {
+                        e.Pinned = true;
+                        pinned.Add(e.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"{LogTag} Could not pin {e.Id} ({e.Category?.Name}): {ex.Message}");
+                    }
                 }
                 t.Commit();
             }
-            Debug.WriteLine($"{LogTag} pinned {pinned} level(s)");
+            Debug.WriteLine($"{LogTag} pinned {pinned.Count} of {toPin.Count} element(s)");
             return pinned;
         }
 
-        private static string BuildSummary(List<Element> elems)
+        /// <summary>
+        /// Unpins every element in the sequence that is currently pinned.
+        /// Returns how many were unpinned.
+        /// </summary>
+        private static int UnpinElements(Document doc, IEnumerable<Element> elements)
         {
-            int revitLinks = elems.OfType<RevitLinkInstance>().Count();
-            int cadLinks = elems.OfType<ImportInstance>().Count();
-            int grids = elems.OfType<Grid>().Count();
-            int scopeBoxes = elems.Count - revitLinks - cadLinks - grids;
+            List<Element> toUnpin = elements.Where(e => e.Pinned).ToList();
+            if (toUnpin.Count == 0) return 0;
 
-            return $"Revit links: {revitLinks}\n" +
-                   $"CAD links: {cadLinks}\n" +
-                   $"Grids: {grids}\n" +
-                   $"Scope boxes: {scopeBoxes}\n";
+            int unpinned = 0;
+            using (Transaction t = new Transaction(doc, "Pin & Lock: unpin elements"))
+            {
+                t.Start();
+                foreach (Element e in toUnpin)
+                {
+                    try
+                    {
+                        e.Pinned = false;
+                        unpinned++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"{LogTag} Could not unpin {e.Id} ({e.Category?.Name}): {ex.Message}");
+                    }
+                }
+                t.Commit();
+            }
+            Debug.WriteLine($"{LogTag} unpinned {unpinned} of {toUnpin.Count} element(s)");
+            return unpinned;
+        }
+
+        /// <summary>
+        /// Display group for the report: the element kinds this command handles, in a fixed order.
+        /// </summary>
+        private static readonly string[] ReportOrder = { "Revit Links", "CAD Links", "Grids", "Scope Boxes", "Levels" };
+
+        private static string KindOf(Element e)
+        {
+            if (e is RevitLinkInstance) return "Revit Links";
+            if (e is ImportInstance) return "CAD Links";
+            if (e is Grid) return "Grids";
+            if (e is Level) return "Levels";
+            return e.Category?.Name ?? "Other";
+        }
+
+        /// <summary>
+        /// One row per element kind (found, pinned now, already pinned, to / in LOCKED)
+        /// in a fixed display order, followed by a bold total row.
+        /// </summary>
+        private static List<PinLockReportRow> BuildReportRows(
+            List<Element> elements,
+            HashSet<ElementId> pinnedNow,
+            HashSet<ElementId> toLocked,
+            HashSet<ElementId> alreadyInLocked)
+        {
+            Dictionary<string, List<Element>> groups = elements
+                .GroupBy(KindOf)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            IEnumerable<string> kinds = ReportOrder
+                .Concat(groups.Keys.Where(k => !ReportOrder.Contains(k)).OrderBy(k => k))
+                .Where(groups.ContainsKey);
+
+            List<PinLockReportRow> rows = new List<PinLockReportRow>();
+            int totalToLocked = 0;
+            int totalInLocked = 0;
+
+            foreach (string kind in kinds)
+            {
+                List<Element> items = groups[kind];
+                int pinned = items.Count(e => pinnedNow.Contains(e.Id));
+                bool allowedInOption = kind != "Levels";
+                int adding = allowedInOption ? items.Count(e => toLocked.Contains(e.Id)) : 0;
+                int inLocked = allowedInOption ? items.Count(e => alreadyInLocked.Contains(e.Id)) : 0;
+                totalToLocked += adding;
+                totalInLocked += inLocked;
+
+                rows.Add(new PinLockReportRow
+                {
+                    Kind = kind,
+                    Found = items.Count,
+                    PinnedNow = pinned,
+                    AlreadyPinned = items.Count - pinned,
+                    ToLocked = allowedInOption ? adding.ToString() : "n/a",
+                    InLocked = allowedInOption ? inLocked.ToString() : "n/a",
+                    Elements = items
+                });
+            }
+
+            rows.Add(new PinLockReportRow
+            {
+                Kind = "Total",
+                Found = elements.Count,
+                PinnedNow = pinnedNow.Count,
+                AlreadyPinned = elements.Count - pinnedNow.Count,
+                ToLocked = totalToLocked.ToString(),
+                InLocked = totalInLocked.ToString(),
+                IsTotal = true
+            });
+
+            return rows;
         }
 
         internal static PushButtonData GetButtonData()
