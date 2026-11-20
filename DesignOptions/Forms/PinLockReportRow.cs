@@ -18,7 +18,7 @@ namespace DesignOptions.Forms
         public bool IsTotal { get; set; }
 
         /// <summary>
-        /// Bound to the "Pinned" checkbox. Starts true (the command has just pinned
+        /// Bound to the "Pin" checkbox. Starts true (the command has just pinned
         /// everything); the user unchecks it to unpin this kind when clicking OK.
         /// </summary>
         public bool Pin { get; set; } = true;

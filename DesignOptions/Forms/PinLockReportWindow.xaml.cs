@@ -46,7 +46,7 @@ namespace DesignOptions.Forms
             InstructionText.Text = instruction ?? string.Empty;
             InstructionPanel.Visibility = string.IsNullOrWhiteSpace(instruction) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
 
-            // OK always applies the Pinned checkboxes, so both buttons stay in every mode.
+            // OK always applies the Pin checkboxes, so both buttons stay in every mode.
             // canProceed only changes what the command does afterwards (Add to Set or not).
             OkButton.Content = canProceed ? "OK" : "Apply";
         }

@@ -97,8 +97,8 @@ namespace DesignOptions
                     ? $"{pinnedNow.Count} element(s) pinned, {inMainModel.Count} selected for {OptionSetName} > {OptionName}"
                     : $"Nothing new to add to {OptionSetName} > {OptionName}";
                 string subhead = canProceed
-                    ? "Uncheck \"Pinned\" on a row to unpin those elements when you click OK."
-                    : $"{pinnedNow.Count} element(s) re-pinned. Uncheck \"Pinned\" on a row to unpin those elements when you click Apply.";
+                    ? "Uncheck \"Pin\" on a row to unpin those elements when you click OK."
+                    : $"{pinnedNow.Count} element(s) re-pinned. Uncheck \"Pin\" on a row to unpin those elements when you click Apply.";
                 string instruction = canProceed
                     ? $"Click OK to open Revit's \"Add to Design Option Set\" dialog, then choose set \"{OptionSetName}\" " +
                       $"and option \"{OptionName}\" to finish. (The Revit API cannot assign elements to a design option directly.)"
@@ -121,7 +121,7 @@ namespace DesignOptions
                     return Result.Succeeded;
                 }
 
-                // 4. Honour the "Pinned" checkboxes: any row the user unchecked gets unpinned.
+                // 4. Honour the "Pin" checkboxes: any row the user unchecked gets unpinned.
                 List<Element> toUnpin = rows
                     .Where(r => !r.IsTotal && !r.Pin)
                     .SelectMany(r => r.Elements)

@@ -95,7 +95,7 @@
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <!-- Template column (not DataGridCheckBoxColumn) so one click toggles it without entering edit mode. -->
-                <DataGridTemplateColumn Header="Pinned" Width="70">
+                <DataGridTemplateColumn Header="Pin" Width="70">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding Pin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -106,10 +106,10 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <!-- Auto, not "*": a star column sizes against the viewport and suppresses the horizontal scrollbar. -->
-                <DataGridTextColumn Header="Element kind" Binding="{Binding Kind}" Width="Auto" MinWidth="170" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Category" Binding="{Binding Kind}" Width="Auto" MinWidth="170" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Found" Binding="{Binding Found}" Width="70" ElementStyle="{StaticResource NumberCell}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Pinned now" Binding="{Binding PinnedNow}" Width="90" ElementStyle="{StaticResource NumberCell}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Already pinned" Binding="{Binding AlreadyPinned}" Width="110" ElementStyle="{StaticResource NumberCell}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Not Pinned" Binding="{Binding PinnedNow}" Width="90" ElementStyle="{StaticResource NumberCell}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Already Pinned" Binding="{Binding AlreadyPinned}" Width="110" ElementStyle="{StaticResource NumberCell}" IsReadOnly="True"/>
                 <DataGridTextColumn x:Name="ToLockedColumn" Header="To LOCKED" Binding="{Binding ToLocked}" Width="90" ElementStyle="{StaticResource NumberCell}" IsReadOnly="True"/>
                 <DataGridTextColumn x:Name="InLockedColumn" Header="In LOCKED" Binding="{Binding InLocked}" Width="90" ElementStyle="{StaticResource NumberCell}" IsReadOnly="True"/>
             </DataGrid.Columns>
