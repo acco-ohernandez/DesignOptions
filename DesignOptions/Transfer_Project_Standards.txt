@@ -1,0 +1,19 @@
+Arrowhead Styles
+Browser organization
+Dimension Styles
+DWG/DXF Export Setup Settings
+Elevation Tag Types
+Grid Types
+Level Types
+Line Styles
+Line Weights
+Model Text Types
+object Styles
+Phase Settings
+Print Settings
+Project Parameters
+Revision Settings
+Spot Dimension Settings
+Text Types
+View Reference Types
+Viewport Type

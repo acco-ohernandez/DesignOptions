@@ -20,11 +20,11 @@ namespace DesignOptions
 
             // 3. Create button data instances
             PushButtonData btnData1 = Cmd_LockedDesignOptions.GetButtonData();
-            //PushButtonData btnData2 = Command2.GetButtonData();
+            PushButtonData btnData2 = Cmd_TransferProjectStandards.GetButtonData();
 
             // 4. Create buttons
             PushButton myButton1 = panel.AddItem(btnData1) as PushButton;
-            //PushButton myButton2 = panel.AddItem(btnData2) as PushButton;
+            PushButton myButton2 = panel.AddItem(btnData2) as PushButton;
 
             // NOTE:
             // To create a new tool, copy lines 35 and 39 and rename the variables to "btnData3" and "myButton3". 
