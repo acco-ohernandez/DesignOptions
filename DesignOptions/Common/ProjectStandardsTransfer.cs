@@ -972,8 +972,15 @@ namespace DesignOptions.Common
             }
             if (shared.Count == 0) return outcome;
 
+            // Bindings can target subcategories too (Roofs > Fascias, Ducts > Insulation...), so
+            // index the target's categories one level deep.
             Dictionary<long, Category> tgtCategories = new Dictionary<long, Category>();
-            foreach (Category c in _tgt.Settings.Categories) tgtCategories[IdValue(c.Id)] = c;
+            foreach (Category c in _tgt.Settings.Categories)
+            {
+                tgtCategories[IdValue(c.Id)] = c;
+                try { foreach (Category sub in c.SubCategories) tgtCategories[IdValue(sub.Id)] = sub; }
+                catch (Exception ex) { Debug.WriteLine($"{LogTag} subcategories of {c.Name}: {ex.Message}"); }
+            }
 
             RevitApplication app = _tgt.Application;
             string originalFile = app.SharedParametersFilename;
@@ -984,13 +991,14 @@ namespace DesignOptions.Common
                 app.SharedParametersFilename = tempFile;
                 DefinitionFile defFile = app.OpenSharedParameterFile();
                 if (defFile == null) throw new InvalidOperationException("Could not open a temporary shared parameter file.");
-                DefinitionGroup group = defFile.Groups.Create("TransferProjectStandards");
-
                 foreach (SharedBinding sb in shared)
                 {
                     string name = sb.Definition.Name;
                     try
                     {
+                        // One group per parameter: a shared parameter file requires unique names
+                        // within a group, and models do carry same-named parameters with different GUIDs.
+                        DefinitionGroup group = defFile.Groups.Create(sb.Shared.GuidValue.ToString("N"));
                         ExternalDefinitionCreationOptions options = new ExternalDefinitionCreationOptions(name, sb.Definition.GetDataType())
                         {
                             GUID = sb.Shared.GuidValue,
