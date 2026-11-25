@@ -57,8 +57,29 @@ namespace DesignOptions
 
                 List<TransferStandardRow> rows = CreateRows();
 
-                TransferStandardsWindow window = new TransferStandardsWindow(
-                    doc, sources, rows, (source, allRows) => RunTransfer(source, doc, allRows));
+                // Revit raises informational message boxes while print settings are read or
+                // copied (printer / paper size mismatches). Answer them automatically during the
+                // run and surface the text in the window instead.
+                TransferStandardsWindow window = null;
+                window = new TransferStandardsWindow(
+                    doc, sources, rows,
+                    (source, allRows) =>
+                    {
+                        using (RevitDialogSuppressor quiet = new RevitDialogSuppressor(uiapp))
+                        {
+                            RunTransfer(source, doc, allRows);
+                            foreach (string msg in quiet.Messages) window?.AddNote("Revit message (auto-closed): " + msg);
+                        }
+                    },
+                    (source, label) =>
+                    {
+                        using (RevitDialogSuppressor quiet = new RevitDialogSuppressor(uiapp))
+                        {
+                            string path = ProjectStandardsSnapshot.Write(new[] { source, doc }, doc, label);
+                            foreach (string msg in quiet.Messages) window?.AddNote("Revit message (auto-closed): " + msg);
+                            return path;
+                        }
+                    });
                 new System.Windows.Interop.WindowInteropHelper(window) { Owner = uiapp.MainWindowHandle };
                 bool ran = window.ShowDialog() == true;
 

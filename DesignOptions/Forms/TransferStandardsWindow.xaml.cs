@@ -16,21 +16,26 @@ namespace DesignOptions.Forms
 
         private readonly IList<TransferStandardRow> _rows;
         private readonly Action<Document, IList<TransferStandardRow>> _runTransfer;
+        private readonly Func<Document, string, string> _exportSnapshot;
+        private readonly List<string> _snapshotPaths = new List<string>();
         private bool _hasRun;
 
         /// <param name="target">The document that receives the standards (the active one).</param>
         /// <param name="sources">Open project documents the user may copy from; the first is preselected.</param>
         /// <param name="rows">One row per standard, in display order.</param>
         /// <param name="runTransfer">Called on Transfer with the chosen source and all rows; fills in each row's result.</param>
+        /// <param name="exportSnapshot">Writes a snapshot of (source, label) and returns the file path.</param>
         public TransferStandardsWindow(
             Document target,
             IList<Document> sources,
             IList<TransferStandardRow> rows,
-            Action<Document, IList<TransferStandardRow>> runTransfer)
+            Action<Document, IList<TransferStandardRow>> runTransfer,
+            Func<Document, string, string> exportSnapshot)
         {
             InitializeComponent();
             _rows = rows;
             _runTransfer = runTransfer;
+            _exportSnapshot = exportSnapshot;
             Debug.WriteLine($"{LogTag} ctor sources={sources.Count} rows={rows.Count}");
 
             SourceCombo.ItemsSource = sources;
@@ -108,21 +113,25 @@ namespace DesignOptions.Forms
             UncheckAllButton.IsEnabled = false;
             SourceCombo.IsEnabled = false;
 
+            bool autoSnapshot = AutoSnapshotCheckBox.IsChecked == true;
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             try
             {
+                if (autoSnapshot) TakeSnapshot(source, "before");
                 _runTransfer(source, _rows);
+                if (autoSnapshot) TakeSnapshot(source, "after");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"{LogTag} EXCEPTION during transfer: {ex}");
-                NotesText.Text = $"The transfer stopped with an error: {ex.Message}";
-                NotesText.Visibility = System.Windows.Visibility.Visible;
+                AppendNote($"The transfer stopped with an error: {ex.Message}");
             }
             finally
             {
                 Mouse.OverrideCursor = null;
             }
+            ExportSnapshotButton.IsEnabled = true;
+            AutoSnapshotCheckBox.IsEnabled = false;
 
             _hasRun = true;
             foreach (TransferStandardRow row in _rows) row.HasRun = true;
@@ -141,6 +150,59 @@ namespace DesignOptions.Forms
             TransferButton.Visibility = System.Windows.Visibility.Collapsed;
             CancelButton.Content = "Close";
             Debug.WriteLine($"{LogTag} transfer finished: created={created} updated={updated} failed={failed}");
+        }
+
+        private void ExportSnapshotButton_Click(object sender, RoutedEventArgs e)
+        {
+            Document source = SourceCombo.SelectedItem as Document;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+            try { TakeSnapshot(source, _hasRun ? "after" : "manual"); }
+            finally { Mouse.OverrideCursor = null; }
+        }
+
+        /// <summary>Writes a snapshot, lists its path under the grid and shows the folder link.</summary>
+        private void TakeSnapshot(Document source, string label)
+        {
+            try
+            {
+                string path = _exportSnapshot(source, label);
+                _snapshotPaths.Add(path);
+                AppendNote($"Snapshot ({label}) saved: {path}");
+                SnapshotLinkText.Visibility = System.Windows.Visibility.Visible;
+                Debug.WriteLine($"{LogTag} snapshot {label}: {path}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{LogTag} snapshot {label} failed: {ex}");
+                AppendNote($"Snapshot ({label}) failed: {ex.Message}");
+            }
+        }
+
+        private void AppendNote(string line)
+        {
+            if (NotesText.Text.Contains(line)) return;
+            NotesText.Text = string.IsNullOrWhiteSpace(NotesText.Text) ? line : NotesText.Text + Environment.NewLine + line;
+            NotesText.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        /// <summary>Adds a line under the grid (used by the command for messages Revit raised during the run).</summary>
+        public void AddNote(string line)
+        {
+            AppendNote(line);
+        }
+
+        private void SnapshotFolderLink_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string folder = _snapshotPaths.Count > 0 ? Path.GetDirectoryName(_snapshotPaths[_snapshotPaths.Count - 1]) : null;
+                if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) return;
+                Process.Start(new ProcessStartInfo("explorer.exe", $"\"{folder}\"") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{LogTag} open folder failed: {ex.Message}");
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

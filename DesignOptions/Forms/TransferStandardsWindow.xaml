@@ -130,8 +130,12 @@
         </DataGrid>
 
         <!-- Notes -->
-        <TextBlock x:Name="NotesText" Grid.Row="4"
-                   Foreground="#FF555555" TextWrapping="Wrap" Margin="0,10,0,0"/>
+        <StackPanel Grid.Row="4" Margin="0,10,0,0">
+            <TextBlock x:Name="NotesText" Foreground="#FF555555" TextWrapping="Wrap"/>
+            <TextBlock x:Name="SnapshotLinkText" Margin="0,4,0,0" Visibility="Collapsed">
+                <Hyperlink x:Name="SnapshotFolderLink" Click="SnapshotFolderLink_Click">Open snapshots folder</Hyperlink>
+            </TextBlock>
+        </StackPanel>
 
         <!-- Buttons -->
         <DockPanel Grid.Row="5" Margin="0,16,0,0" LastChildFill="False">
@@ -140,6 +144,12 @@
                 <Button x:Name="UncheckAllButton" Content="Uncheck all" Width="90" Height="28" Click="UncheckAllButton_Click"/>
                 <TextBlock x:Name="SelectionCountText" VerticalAlignment="Center" Margin="16,0,0,0"
                            FontWeight="SemiBold" Foreground="#FF1F3A5F"/>
+                <Button x:Name="ExportSnapshotButton" Content="Export snapshot" Width="120" Height="28" Margin="24,0,0,0"
+                        Click="ExportSnapshotButton_Click"
+                        ToolTip="Writes a text inventory of the standards in the source and target models, for comparing before and after a transfer"/>
+                <CheckBox x:Name="AutoSnapshotCheckBox" Content="Save before/after snapshots" IsChecked="True"
+                          VerticalAlignment="Center" Margin="12,0,0,0"
+                          ToolTip="Writes one snapshot just before Transfer runs and one right after"/>
             </StackPanel>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button x:Name="TransferButton" Content="Transfer" Width="100" Height="28" Margin="0,0,8,0"
