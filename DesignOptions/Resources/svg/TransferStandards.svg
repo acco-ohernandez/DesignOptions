@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Transfer Standards (Cmd_TransferProjectStandards): copies project standards from one open
+       model into another. Two documents with a folded corner (upper-left = source, lower-right =
+       target, {{PAPER}} sheets, {{FILL}} corner fold = the acted-on state) exchanging two arrows:
+       one pointing left along the top, one pointing right along the bottom. Tokenized for the
+       prompticon skill (acco-house style). Re-render with Convert-SvgToRibbonIcon.ps1; never
+       hardcode hex. -->
+  <!-- Source document, upper-left -->
+  <path d="M2.5 2.5 H10 L14.5 7 V18.5 H2.5 Z" fill="{{PAPER}}" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M10 2.5 V7 H14.5" fill="{{FILL}}" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M5 10.5 H12 M5 14 H12" fill="none" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linecap="round"/>
+  <!-- Target document, lower-right -->
+  <path d="M17.5 13.5 H25 L29.5 18 V29.5 H17.5 Z" fill="{{PAPER}}" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M25 13.5 V18 H29.5" fill="{{FILL}}" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M20 21.5 H27 M20 25 H27" fill="none" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linecap="round"/>
+  <!-- Arrow along the top, pointing left (into the source side) -->
+  <path d="M29 6 H19.5 M22.5 3 L19.5 6 L22.5 9" fill="none" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Arrow along the bottom, pointing right (into the target side) -->
+  <path d="M3 26 H12.5 M9.5 23 L12.5 26 L9.5 29" fill="none" stroke="{{NEUTRAL}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -215,8 +215,10 @@ namespace DesignOptions
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
+                Properties.Resources.TransferStandards_32x32,
+                Properties.Resources.TransferStandards_16x16,
+                Properties.Resources.TransferStandards_Dark_32x32,
+                Properties.Resources.TransferStandards_Dark_16x16,
                 "Copies ACCO project standards (arrowheads, text and dimension types, line and object styles, " +
                 "phases, print and export setups, shared project parameters...) from another open model into this one, " +
                 "overwriting standards with the same name.");

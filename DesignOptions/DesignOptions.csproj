@@ -94,6 +94,10 @@
 	<EmbeddedResource Include="Resources\LockedDesignOptions_32x32.png" />
 	<EmbeddedResource Include="Resources\LockedDesignOptions_Dark_16x16.png" />
 	<EmbeddedResource Include="Resources\LockedDesignOptions_Dark_32x32.png" />
+	<EmbeddedResource Include="Resources\TransferStandards_16x16.png" />
+	<EmbeddedResource Include="Resources\TransferStandards_32x32.png" />
+	<EmbeddedResource Include="Resources\TransferStandards_Dark_16x16.png" />
+	<EmbeddedResource Include="Resources\TransferStandards_Dark_32x32.png" />
 </ItemGroup>
 	
 <ItemGroup>

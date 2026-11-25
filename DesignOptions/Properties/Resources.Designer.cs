@@ -211,5 +211,53 @@ namespace DesignOptions.Properties
                 return ((byte[])(obj));
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TransferStandards_16x16
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("TransferStandards_16x16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TransferStandards_32x32
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("TransferStandards_32x32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TransferStandards_Dark_16x16
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("TransferStandards_Dark_16x16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TransferStandards_Dark_32x32
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("TransferStandards_Dark_32x32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
